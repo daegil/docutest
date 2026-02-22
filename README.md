@@ -26,6 +26,23 @@ curl -fsSL https://raw.githubusercontent.com/daegil/docutest/main/init.sh | bash
 Initialize the project based on @DOCS_INIT_PROMPT.md
 ```
 
+## 특정 브랜치로 테스트
+
+feature 브랜치의 변경사항을 테스트하려면 `sed`로 브랜치명을 치환합니다:
+
+```bash
+mkdir my-project-docs && cd my-project-docs
+bash <(curl -fsSL "https://raw.githubusercontent.com/daegil/docutest/BRANCH_NAME/init.sh" | sed 's/BRANCH="main"/BRANCH="BRANCH_NAME"/')
+```
+
+> `BRANCH_NAME`을 실제 브랜치명으로 교체하세요. 브랜치에 `/`가 포함된 경우 sed 구분자와 충돌하지 않도록 이스케이프합니다 (예: `feature\/mermaid-rendering`).
+
+**예시:**
+
+```bash
+bash <(curl -fsSL "https://raw.githubusercontent.com/daegil/docutest/feature/mermaid-rendering/init.sh" | sed 's/BRANCH="main"/BRANCH="feature\/mermaid-rendering"/')
+```
+
 ## 사용 방법
 
 ### 1. 새 문서 저장소 생성 (init.sh)
