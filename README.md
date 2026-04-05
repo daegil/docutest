@@ -1,29 +1,72 @@
 # docutest
 
-AI 코딩 에이전트를 위한 Docusaurus 문서화 프로젝트 초기 구동 지시서(Prompt) 관리 저장소입니다.
+AI 코딩 에이전트를 위한 Docusaurus 문서화 + LLM Wiki 프로젝트 초기 구동 지시서(Prompt) 관리 저장소입니다.
 
 ## 개요
 
-이 프로젝트는 **Docusaurus 기반의 프로젝트 문서 시스템**을 빠르게 구축하기 위한 초기화 프롬프트와 문서 운영 규약을 관리합니다. AI 코딩 에이전트에게 이 지시서를 제공하면, 일관된 구조와 규칙을 갖춘 문서 저장소를 자동으로 생성할 수 있습니다.
+이 프로젝트는 **Docusaurus 기반의 프로젝트 문서 시스템과 LLM Wiki**를 빠르게 구축하기 위한 초기화 프롬프트와 운영 규약을 관리합니다. AI 코딩 에이전트에게 이 지시서를 제공하면, 하나의 저장소에서 프로젝트 문서(`docs/`)와 LLM이 관리하는 지식 위키(`wiki/`)를 함께 운영할 수 있습니다.
+
+### 3-Layer 아키텍처
+
+| Layer | 디렉토리 | 역할 |
+|-------|----------|------|
+| Raw Sources | `raw/` | 원본 자료 (immutable). LLM은 읽기만 가능 |
+| Wiki | `wiki/` | LLM이 생성/관리하는 지식 위키. 엔티티, 개념, 소스 요약, 종합 분석 |
+| Schema | `CLAUDE.md` | LLM의 행동 규칙. 디렉토리별 규칙, 워크플로우, 컨벤션 정의 |
+
+프로젝트 문서(`docs/`)는 `DOCS.md` 규칙을 따르며, Wiki와 독립적으로 운영됩니다.
 
 ## 핵심 파일
 
 | 파일 | 설명 |
 |------|------|
 | `DOCS.md` | 프로젝트 문서 운영 규약. 디렉토리 구조, 파일명 규칙, 프런트매터, 사이드바 레이블, Draft/Approved 워크플로우 등 모든 문서 작성 규칙을 정의합니다. |
-| `DOCS_INIT_PROMPT.md` | Docusaurus 문서 리포지토리 초기화 프롬프트. AI 에이전트에게 제공하면 `DOCS.md` 규칙에 맞는 Docusaurus 프로젝트를 처음부터 세팅합니다. |
+| `llm-wiki.md` | LLM Wiki 패턴 참조 문서. 3-Layer 아키텍처, Ingest/Query/Lint 워크플로우, 인덱싱/로깅 방식을 설명합니다. |
+| `INIT_PROMPT.md` | 통합 초기화 프롬프트. AI 에이전트에게 제공하면 `DOCS.md` + `llm-wiki.md` 규칙에 맞는 Docusaurus 프로젝트를 처음부터 세팅합니다. |
 
 ## Quick Start
 
+### Shell function 등록 (권장)
+
+`~/.zshrc`에 아래 함수를 추가하면 어디서든 한 번에 프로젝트를 생성할 수 있습니다:
+
 ```bash
-mkdir my-project-docs && cd my-project-docs
+docutest() {
+  if [[ -z "$1" ]]; then
+    echo "Usage: docutest <directory>"
+    return 1
+  fi
+
+  local target_dir="$1"
+
+  mkdir -p "$target_dir" || return 1
+  cd "$target_dir" || return 1
+
+  curl -fsSL https://raw.githubusercontent.com/daegil/docutest/main/init.sh | bash
+}
+```
+
+등록 후 사용:
+
+```bash
+docutest my-project
+```
+
+### 직접 실행
+
+함수 등록 없이 바로 사용할 수도 있습니다:
+
+```bash
+mkdir my-project && cd my-project
 curl -fsSL https://raw.githubusercontent.com/daegil/docutest/main/init.sh | bash
 ```
 
-이 명령어 한 줄이면 `DOCS.md`와 `DOCS_INIT_PROMPT.md`가 다운로드됩니다. 이후 AI 코딩 에이전트에서 초기화 프롬프트를 실행하면 끝!
+---
+
+파일 다운로드가 끝나면 AI 코딩 에이전트에서 초기화 프롬프트를 실행하세요:
 
 ```
-Initialize the project based on @DOCS_INIT_PROMPT.md
+Initialize the project based on @INIT_PROMPT.md
 ```
 
 ## 특정 브랜치로 테스트
@@ -31,55 +74,82 @@ Initialize the project based on @DOCS_INIT_PROMPT.md
 feature 브랜치의 변경사항을 테스트하려면 `sed`로 브랜치명을 치환합니다:
 
 ```bash
-mkdir my-project-docs && cd my-project-docs
+mkdir my-project && cd my-project
 bash <(curl -fsSL "https://raw.githubusercontent.com/daegil/docutest/BRANCH_NAME/init.sh" | sed 's/BRANCH="main"/BRANCH="BRANCH_NAME"/')
 ```
 
-> `BRANCH_NAME`을 실제 브랜치명으로 교체하세요. 브랜치에 `/`가 포함된 경우 sed 구분자와 충돌하지 않도록 이스케이프합니다 (예: `feature\/mermaid-rendering`).
+> `BRANCH_NAME`을 실제 브랜치명으로 교체하세요. 브랜치에 `/`가 포함된 경우 sed 구분자와 충돌하지 않도록 이스케이프합니다 (예: `feature\/add-llm-wiki`).
 
 **예시:**
 
 ```bash
-bash <(curl -fsSL "https://raw.githubusercontent.com/daegil/docutest/feature/mermaid-rendering/init.sh" | sed 's/BRANCH="main"/BRANCH="feature\/mermaid-rendering"/')
+bash <(curl -fsSL "https://raw.githubusercontent.com/daegil/docutest/feature/add-llm-wiki/init.sh" | sed 's/BRANCH="main"/BRANCH="feature\/add-llm-wiki"/')
 ```
 
 ## 사용 방법
 
-### 1. 새 문서 저장소 생성 (init.sh)
+### 1. 새 프로젝트 생성 (init.sh)
 
 ```bash
-# 새 프로젝트 디렉토리 생성 후 init.sh 실행
-mkdir my-project-docs && cd my-project-docs
+mkdir my-project && cd my-project
 curl -fsSL https://raw.githubusercontent.com/daegil/docutest/main/init.sh | bash
 ```
 
 `init.sh`는 다음을 수행합니다:
 - 현재 디렉토리가 비어있는지 확인 (경고만, 강제 중단 아님)
-- GitHub에서 `DOCS.md`, `DOCS_INIT_PROMPT.md` 다운로드
+- GitHub에서 `DOCS.md`, `llm-wiki.md`, `INIT_PROMPT.md` 다운로드
 - 다음 단계 안내 메시지 출력
 
 다운로드 후 AI 코딩 에이전트에서 아래와 같이 입력하세요:
 
 ```
-Initialize the project based on @DOCS_INIT_PROMPT.md
+Initialize the project based on @INIT_PROMPT.md
 ```
 
 ### 2. 초기화 후 생성되는 구조
 
 ```
-docs/
-├── 00-meta/          # 프로젝트 메타 정보 (개요, 규칙, 템플릿)
-├── 10-plan/          # 계획 문서
-│   ├── drafts/       # 초안 계획
-│   └── approved/     # 승인된 계획
-├── 20-execution/     # 실행 기록
-│   ├── logs/         # 실행 로그
-│   ├── decisions/    # 의사결정 기록 (ADR)
-│   └── meetings/     # 회의록
-├── 30-deliverables/  # 산출물 정의/정리
-├── 40-retros/        # 회고
-└── 90-reference/     # 참고자료/리서치/용어집
+프로젝트 루트/
+├── raw/                    # Layer 1: 원본 자료 (immutable)
+│   ├── articles/           # 웹 아티클, 클리핑
+│   ├── papers/             # 논문, PDF
+│   ├── notes/              # 개인 메모, 회의록
+│   └── assets/             # 이미지 등 첨부파일
+│
+├── wiki/                   # Layer 2: LLM Wiki
+│   ├── index.md            # 위키 전체 카탈로그
+│   ├── log.md              # 작업 로그 (append-only)
+│   ├── entities/           # 엔티티 페이지
+│   ├── concepts/           # 개념 페이지
+│   ├── sources/            # 소스 요약 페이지
+│   └── synthesis/          # 종합 분석 페이지
+│
+├── docs/                   # 프로젝트 문서 (DOCS.md 규칙)
+│   ├── intro.md            # 프로젝트 문서 홈
+│   ├── 00-meta/
+│   ├── 10-plan/
+│   │   ├── drafts/
+│   │   └── approved/
+│   ├── 20-execution/
+│   ├── 30-deliverables/
+│   ├── 40-retros/
+│   └── 90-reference/
+│
+├── CLAUDE.md               # Layer 3: Schema (LLM 행동 규칙)
+├── DOCS.md                 # 프로젝트 문서 운영 규약
+├── llm-wiki.md             # LLM Wiki 패턴 참조 문서
+├── docusaurus.config.ts    # Docusaurus 설정
+├── sidebars.ts             # docs/ 사이드바
+└── sidebars-wiki.ts        # wiki/ 사이드바
 ```
+
+### 3. Wiki 워크플로우
+
+| 워크플로우 | 설명 |
+|------------|------|
+| **Ingest** | `raw/`에 자료를 추가하고 "ingest 해줘"로 위키 구축. 요약, 엔티티, 개념 페이지 생성/업데이트 |
+| **Query** | 위키에 대해 질문. 답변을 새 위키 페이지로 저장 가능 |
+| **Lint** | 위키 건강 점검. 모순, 고아 페이지, 누락된 크로스레퍼런스 탐지 |
 
 ## 문서 운영 규약 요약
 
@@ -96,6 +166,8 @@ docs/
 - [Docusaurus](https://docusaurus.io/) - 정적 문서 사이트 생성기
 - Markdown + YAML 프런트매터
 - 자동 생성(autogenerated) 사이드바
+- [Mermaid](https://mermaid.js.org/) 다이어그램 지원
+- LLM Wiki 패턴 ([karpathy/llm-wiki](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) 기반)
 
 ## 라이선스
 

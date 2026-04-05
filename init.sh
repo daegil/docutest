@@ -5,7 +5,7 @@ REPO="daegil/docutest"
 BRANCH="main"
 BASE_URL="https://raw.githubusercontent.com/${REPO}/${BRANCH}"
 
-FILES=("DOCS.md" "DOCS_INIT_PROMPT.md")
+FILES=("DOCS.md" "llm-wiki.md" "INIT_PROMPT.md")
 
 # Colors & styles
 if [[ -t 1 ]]; then
@@ -26,10 +26,10 @@ fi
 
 echo ""
 echo -e "  ${MAGENTA}${BOLD}docutest${RESET}"
-echo -e "  ${GRAY}Docusaurus documentation kickstart for AI coding agents${RESET}"
+echo -e "  ${GRAY}Docusaurus docs + LLM Wiki kickstart for AI coding agents${RESET}"
 echo ""
-echo -e "  ${DIM}Scaffold a Docusaurus doc site with a single prompt.${RESET}"
-echo -e "  ${DIM}Structure, conventions, and workflows - all ready to go.${RESET}"
+echo -e "  ${DIM}Scaffold a Docusaurus doc site with LLM-maintained wiki.${RESET}"
+echo -e "  ${DIM}Project docs, knowledge wiki, and workflows - all ready to go.${RESET}"
 echo ""
 
 # Warn if current directory is not empty
@@ -69,5 +69,5 @@ echo -e "  ${BOLD}Next step${RESET}"
 echo ""
 echo -e "  Open your AI coding agent in this directory and enter:"
 echo ""
-echo -e "    ${CYAN}${ITALIC}Initialize the project based on @DOCS_INIT_PROMPT.md${RESET}"
+echo -e "    ${CYAN}${ITALIC}Initialize the project based on @INIT_PROMPT.md${RESET}"
 echo ""
