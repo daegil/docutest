@@ -19,6 +19,7 @@ Docusaurus는 이 둘의 **렌더링 유틸리티**로 활용됩니다.
 - 이 디렉토리에 `DOCS.md`, `llm-wiki.md` 파일이 존재합니다
 - `DOCS.md`에는 프로젝트 문서 작성 규칙이 정의되어 있습니다
 - `llm-wiki.md`에는 LLM Wiki 패턴(3-Layer 아키텍처, Ingest/Query/Lint 워크플로우)이 설명되어 있습니다
+- `.claude/` 디렉토리에 하네스 뼈대(설정·슬래시 커맨드)가 이미 배치되어 있습니다. **중복 생성하지 마세요.**
 - 두 파일을 **반드시 먼저 읽고** 규칙을 이해한 뒤 작업을 시작하세요
 
 ---
@@ -168,9 +169,21 @@ CLAUDE.md는 LLM의 행동 규칙을 정의하는 **Schema 파일**입니다.
 2. **3-Layer 아키텍처 설명** — raw/(소스) → wiki/(위키) → CLAUDE.md(스키마)
 3. **다음 단계 안내**:
    - `npm start`로 로컬 서버 실행
-   - `raw/`에 자료를 추가하고 "ingest 해줘"로 첫 위키 구축
+   - `raw/`에 자료를 추가하고 `/ingest`로 첫 위키 구축
+   - `/wiki-query <질문>`으로 위키 질의, `/wiki-lint`로 건강 점검
+   - `/docs-new <type> <제목>`으로 DOCS.md 규약 기반 새 문서 생성, `/docs-approve`로 승인
    - `/wiki/`에서 위키 브라우징
    - 프로젝트 루트를 Obsidian vault로 열어 Graph View 활용
+
+### 사용 가능한 슬래시 커맨드 (`.claude/commands/`)
+
+| 커맨드 | 역할 |
+|---|---|
+| `/ingest [경로]` | raw/ 자료를 wiki/ 에 인제스트 |
+| `/wiki-query <질문>` | wiki/ 에 질의, 필요 시 synthesis/ 저장 |
+| `/wiki-lint` | 고아/모순/UTF-8/프런트매터 점검 |
+| `/docs-new <type> <제목>` | DOCS.md 규약 기반 새 문서 스캐폴딩 |
+| `/docs-approve <파일>` | drafts/ → approved/ 승격 |
 
 ---
 

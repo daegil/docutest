@@ -19,6 +19,11 @@ CLAUDE_DIRS=(
 CLAUDE_FILES=(
   ".claude/settings.json"
   ".claude/README.md"
+  ".claude/commands/ingest.md"
+  ".claude/commands/wiki-query.md"
+  ".claude/commands/wiki-lint.md"
+  ".claude/commands/docs-new.md"
+  ".claude/commands/docs-approve.md"
 )
 
 # Colors & styles
