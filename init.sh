@@ -7,6 +7,20 @@ BASE_URL="https://raw.githubusercontent.com/${REPO}/${BRANCH}"
 
 FILES=("DOCS.md" "llm-wiki.md" "INIT_PROMPT.md")
 
+# .claude/ 하네스 뼈대: 디렉토리 생성 + 존재 시 복사할 파일 목록
+CLAUDE_DIRS=(
+  ".claude"
+  ".claude/commands"
+  ".claude/agents"
+  ".claude/skills"
+  ".claude/hooks"
+)
+
+CLAUDE_FILES=(
+  ".claude/settings.json"
+  ".claude/README.md"
+)
+
 # Colors & styles
 if [[ -t 1 ]]; then
   BOLD='\033[1m'
@@ -51,6 +65,33 @@ for file in "${FILES[@]}"; do
   else
     echo -e "\r  ${RED}◆${RESET}  ${file} ${RED}- download failed${RESET}"
     FAILED=1
+  fi
+done
+
+echo ""
+
+# .claude/ 뼈대 생성
+echo -e "  ${CYAN}●${RESET}  ${BOLD}Scaffolding .claude/${RESET}"
+echo ""
+
+for dir in "${CLAUDE_DIRS[@]}"; do
+  if mkdir -p "${dir}" 2>/dev/null; then
+    echo -e "  ${GREEN}◆${RESET}  ${dir}/"
+  else
+    echo -e "  ${RED}◆${RESET}  ${dir}/ ${RED}- mkdir failed${RESET}"
+    FAILED=1
+  fi
+done
+
+for file in "${CLAUDE_FILES[@]}"; do
+  echo -ne "  ${DIM}◇${RESET}  ${DIM}${file}${RESET}"
+  mkdir -p "$(dirname "${file}")" 2>/dev/null || true
+  if curl -fsSL "${BASE_URL}/${file}" -o "${file}" 2>/dev/null; then
+    echo -e "\r  ${GREEN}◆${RESET}  ${file}"
+  else
+    # 레포에 없으면 조용히 skip (뼈대만 있는 경우)
+    rm -f "${file}" 2>/dev/null || true
+    echo -e "\r  ${GRAY}◇${RESET}  ${GRAY}${file} - skipped (not in repo)${RESET}"
   fi
 done
 
