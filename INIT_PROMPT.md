@@ -139,7 +139,7 @@ CLAUDE.md는 LLM의 행동 규칙을 정의하는 **Schema 파일**입니다.
    - 3.3 프런트매터 규칙 (title, tags, author, contributors, created, updated, sources, status)
    - 3.4 링크 규칙 (표준 마크다운만, `[[wikilink]]` 금지 — Docusaurus/Obsidian 호환)
    - 3.5 페이지 작성 원칙
-   - 3.6 파일 생성 후 UTF-8 검증 (필수 — `grep -rn '�' wiki/`)
+   - 3.6 파일 생성 후 UTF-8 검증 (필수 — `grep -rnP '\xef\xbf\xbd' wiki/`, U+FFFD 치환문자 탐지)
 4. **raw/ 원본 자료 규칙** — LLM은 절대 수정 금지
 5. **Wiki 워크플로우** — Ingest, Query, Lint 상세 절차
 6. **index.md 갱신 규칙** — 카테고리별 카탈로그, 알파벳순
@@ -224,8 +224,9 @@ Docusaurus는 `.md` 파일도 MDX로 파싱합니다. `{}`가 JSX 표현식으�
 
 ### UTF-8 한글 깨짐
 
-LLM이 파일을 생성할 때 한글의 UTF-8 바이트가 잘려 `�` 문자가 삽입될 수 있습니다.
-**파일 생성 후 반드시 검증합니다**: `grep -rn '�' wiki/ docs/`
+LLM이 파일을 생성할 때 한글의 UTF-8 바이트가 잘려 U+FFFD 치환문자가 삽입될 수 있습니다.
+**파일 생성 후 반드시 검증합니다**: `grep -rnP '\xef\xbf\xbd' wiki/ docs/`
+(U+FFFD의 UTF-8 인코딩은 3바이트 `EF BF BD`입니다. 리터럴 치환문자를 소스에 박아 두지 말고 항상 바이트 패턴으로 검색하세요.)
 발견 시 즉시 수정합니다.
 
 ---

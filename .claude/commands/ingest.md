@@ -18,7 +18,7 @@ $ARGUMENTS
 4. **크로스레퍼런스**: 표준 마크다운 링크만 사용 (`[[wikilink]]` 금지).
 5. **index.md 갱신**: 신규/수정 페이지를 알파벳순으로 카탈로그에 반영.
 6. **log.md append**: `## [YYYY-MM-DD] ingest | <소스 제목>` 형식으로 한 줄 추가.
-7. **UTF-8 검증**: 작업 종료 전 `grep -rn '�' wiki/` 실행, 발견 시 즉시 수정.
+7. **UTF-8 검증**: 작업 종료 전 `grep -rnP '\xef\xbf\xbd' wiki/` 실행 (U+FFFD 치환문자 탐지), 발견 시 즉시 수정.
 
 ## 보고
 
